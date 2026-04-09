@@ -1,0 +1,49 @@
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Logs
+logs/
+*.log
+error.log
+error_50k.log
+
+# Data (large files)
+data/raw/
+data/processed/
+data/external/
+
+# Model weights
+models/saved_models/
+
+# Results / outputs
+results/
+
+# Pytest
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env

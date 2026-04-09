@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  credilens-simple:
+    build: .
+    ports:
+      - "7860:7860"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python app/simple/credilens_simple.py
+    
+  credilens-api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python src/interfaces/api_server.py
+    
+  credilens-dashboard:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./results:/app/results
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: streamlit run app/technical/credilens_dashboard.py

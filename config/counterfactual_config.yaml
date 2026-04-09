@@ -1,0 +1,40 @@
+counterfactuals:
+  algorithm: nsga2
+  objectives:
+    proximity:
+      enabled: true
+      metric: l1
+      weight: 1.0
+    sparsity:
+      enabled: true
+      weight: 1.0
+    plausibility:
+      enabled: true
+      metric: mahalanobis
+      weight: 0.8
+    actionability:
+      enabled: true
+      cost_model: domain_specific
+      weight: 0.5
+    diversity:
+      enabled: true
+      metric: feature_variance
+      weight: 0.3
+  nsga2:
+    population_size: 100
+    n_generations: 50
+    crossover_prob: 0.9
+    mutation_prob: 0.1
+  constraints:
+    immutable_features:
+      - term
+      - issue_d
+    monotonic_increase:
+      - emp_length
+    monotonic_decrease: []
+    feature_ranges:
+      auto_detect: true
+  validation:
+    verify_prediction_change: true
+    verify_feasibility: true
+    verify_actionability: true

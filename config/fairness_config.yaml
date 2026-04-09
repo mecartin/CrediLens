@@ -1,0 +1,20 @@
+fairness:
+  protected_attributes:
+    - home_ownership
+  metrics:
+    demographic_parity: true
+    equalized_odds: true
+    equal_opportunity: true
+    calibration: true
+    disparate_impact: true
+  thresholds:
+    demographic_parity: 0.1
+    equalized_odds: 0.1
+    disparate_impact: [0.8, 1.25]
+  counterfactual_fairness:
+    enabled: true
+    n_samples: 100
+    fairness_threshold: 0.1
+  mitigation:
+    enabled: false
+    method: reweighting

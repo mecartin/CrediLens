@@ -1,0 +1,23 @@
+explainability:
+  methods:
+    shap:
+      enabled: true
+      explainer_type: tree
+      n_background_samples: 100
+    lime:
+      enabled: true
+      n_samples: 5000
+      n_features: 10
+      discretize_continuous: true
+    model_based:
+      enabled: true
+      method: permutation_importance
+  ensemble:
+    enabled: true
+    consensus_method: rank_aggregation
+    disagreement_threshold: 0.3
+  quality_metrics:
+    fidelity: true
+    consistency: true
+    stability: true
+    compactness: true

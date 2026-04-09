@@ -1,0 +1,45 @@
+model:
+  algorithm: xgboost
+  hyperparameters:
+    n_estimators: 100
+    max_depth: 5
+    learning_rate: 0.1
+    subsample: 0.8
+    colsample_bytree: 0.8
+    gamma: 0
+    min_child_weight: 1
+    reg_alpha: 0
+    reg_lambda: 1
+    scale_pos_weight: 4.0
+    objective: binary:logistic
+    eval_metric: auc
+    random_state: 42
+
+optimization:
+  method: optuna
+  n_trials: 15
+  timeout: 3600
+  metric: f1
+  direction: maximize
+  search_space:
+    n_estimators: [100, 500]
+    max_depth: [3, 10]
+    learning_rate: [0.01, 0.3]
+    subsample: [0.5, 1.0]
+    colsample_bytree: [0.5, 1.0]
+    scale_pos_weight: [2.0, 10.0]
+
+preprocessing:
+  categorical_encoding: onehot
+  scaling: standard
+  missing_imputation: knn
+  smote:
+    enabled: true
+    strategy: auto
+    k_neighbors: 5
+
+threshold_tuning:
+  enabled: true
+  method: f1_optimization
+  search_range: [0.1, 0.9]
+  step: 0.05
