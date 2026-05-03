@@ -17,32 +17,39 @@ CrediLens is a state-of-the-art credit risk platform that goes beyond simple "Ap
 
 ---
 
-## 🚀 Key Features
+## 🚀 Detailed Feature Architecture
 
 ### 1. **Explainable AI (XAI) & Counterfactuals**
-*   **NSGA-II Discovery:** Generates diverse, Pareto-optimal counterfactuals to show applicants exactly what changes (e.g., "increase income by $5k and reduce DTI by 2%") would lead to approval.
-*   **SHAP/LIME Integration:** Global and local feature importance mapping to ensure transparency in decision-making.
+CrediLens demystifies black-box XGBoost models through a comprehensive explainability pipeline:
+*   **NSGA-II Optimization:** Utilizes Non-dominated Sorting Genetic Algorithm II (`pymoo`) to discover diverse, Pareto-optimal counterfactual explanations. This allows the system to present rejected applicants with multiple viable pathways to approval (e.g., "increase income by $5,000" OR "reduce DTI by 2% and pay off 1 credit card").
+*   **SHAP & LIME Wrappers:** Integrates both Global (SHAP summary plots, feature dependence) and Local (LIME surrogate models) explainability. This ensures stakeholders understand exactly which financial behaviors are driving approval probabilities across the entire dataset or for a single applicant.
 
-### 2. **Causal Recourse Engine**
-*   **Pathfinding Algorithms:** Uses Dijkstra and Greedy Gradient search to find the "path of least resistance" for a rejected applicant to reach an approval state.
-*   **Actionable Transitions:** Models realistic financial changes as edges in a directed graph, visualizing the journey to creditworthiness.
+### 2. **Causal Recourse Engine (`src/recourse`)**
+A specialized sub-system designed to turn rejections into actionable financial plans:
+*   **Graph-Based Modeling:** Financial features are modeled as a directed graph where nodes represent financial states (e.g., DTI, Credit Score) and edges represent actionable transitions.
+*   **Pathfinding Algorithms:** Employs optimized Dijkstra's algorithm and a custom Greedy Gradient search to compute the "path of least resistance" or lowest-cost action sequence for an applicant to transition from a rejected state to an approved state.
+*   **Cost Functions:** Incorporates customized, real-world cost models to ensure recommended changes are realistically achievable (e.g., penalizing massive sudden increases in income).
 
-### 3. **Portfolio Analytics & Stability**
-*   **Stochastic Stress Testing:** Simulate economic downturns (income shifts, interest rate spikes) to see how your portfolio risk profile changes.
-*   **Decision Stability:** Uses stochastic noise injection to measure the "fragility" of individual credit decisions.
+### 3. **Portfolio Analytics & Stability (`src/analytics`)**
+Provides lenders with macroeconomic risk assessment tools:
+*   **Stochastic Stress Testing (`portfolio.py`):** Simulates macroscopic economic shocks (e.g., inflation spikes causing +2% debt ratios, recessionary income drops) to evaluate how the aggregated portfolio's risk profile degrades under pressure.
+*   **Decision Stability Analysis (`stability.py`):** Injects stochastic noise into individual applicant profiles to measure model "fragility." Decisions that flip from "Approved" to "Denied" under minimal noise are flagged for manual underwriter review.
+*   **Automated Audit Reporting (`reporting.py`):** Automatically compiles performance metrics, stress test results, and fairness checks into comprehensive markdown/PDF audit reports for regulatory compliance.
 
-### 4. **Governance & Fairness**
-*   **Bias Detection:** Automated monitoring for Demographic Parity and Disparate Impact across sensitive attributes.
-*   **Audit Reporting:** One-click generation of technical audit reports for regulatory compliance.
+### 4. **Governance & Fairness Auditing (`src/fairness`)**
+Ensures ethical AI deployment by proactively combating algorithmic bias:
+*   **Bias Detection (`bias_detector.py`):** Automated auditing against protected classes, calculating **Demographic Parity**, **Equal Opportunity**, and **Disparate Impact** ratios.
+*   **Algorithmic Mitigation (`mitigation.py`):** Provides built-in post-processing mitigation techniques to adjust decision thresholds, ensuring fairer lending outcomes across demographic groups without heavily sacrificing model accuracy.
 
 ---
 
 ## 🛠️ Technology Stack
 
-*   **Core:** Python 3.10+, XGBoost, Scikit-Learn
-*   **Optimization:** Pymoo (NSGA-II), Optuna
-*   **Visualization:** Streamlit, Gradio, PyVis (NetworkGraphs), Seaborn
-*   **API:** FastAPI, Uvicorn
+*   **Machine Learning Core:** Python 3.10+, XGBoost (Gradient Boosting), Scikit-Learn
+*   **Optimization & Recourse:** Pymoo (NSGA-II Genetic Algorithms), NetworkX (Graph Traversal), Optuna (Hyperparameter Tuning)
+*   **Explainability & Fairness:** SHAP, LIME, custom fairness modules
+*   **Visualization & UI:** Streamlit (Technical Dashboard), Gradio (Consumer UI), PyVis (Interactive Network Graphs), Seaborn/Matplotlib
+*   **Backend & API:** FastAPI, Uvicorn, Pydantic (Data Validation)
 *   **Infrastructure:** Docker, Docker-compose
 
 ---
@@ -51,7 +58,7 @@ CrediLens is a state-of-the-art credit risk platform that goes beyond simple "Ap
 
 ### Prerequisites
 - Python 3.10 or higher
-- (Optional) CUDA-enabled GPU for accelerated training
+- (Optional) CUDA-enabled GPU for accelerated XGBoost training
 
 ### Standard Setup
 ```bash
@@ -69,25 +76,27 @@ pip install -r requirements.txt
 
 ---
 
-## 🚦 Usage
+## 🚦 Usage & Interfaces
 
-### 1. The Orchestrator (Easiest)
-Launch both the **Simple UI (Gradio)** and the **Technical Dashboard (Streamlit)** simultaneously:
+CrediLens is designed with a multi-interface approach catering to different stakeholders (Applicants vs. Underwriters/Data Scientists).
+
+### 1. The Orchestrator (Local Dual-App Launch)
+Launch both the **Simple Applicant UI (Gradio)** and the **Technical Underwriter Dashboard (Streamlit)** simultaneously:
 ```bash
 python start.py
 ```
-- **Simple UI:** http://localhost:7860
-- **Technical Dashboard:** http://localhost:8501
+- **Simple UI:** `http://localhost:7860` (For applicant simulation)
+- **Technical Dashboard:** `http://localhost:8501` (For fairness audits, stress testing, and portfolio analytics)
 
-### 2. API Server
-Run the FastAPI production-ready server:
+### 2. FastAPI Backend Server
+Run the FastAPI production-ready server for microservice integration:
 ```bash
 python src/interfaces/api_server.py
 ```
-*API docs available at:* http://localhost:8000/docs
+*API interactive documentation available at:* `http://localhost:8000/docs`
 
-### 3. Training & Optimization
-To re-train the model or run hyperparameter tuning with Optuna:
+### 3. Model Training & Optimization
+To re-train the XGBoost core or run hyperparameter tuning with Optuna:
 ```bash
 python scripts/train_model.py
 ```
@@ -98,16 +107,22 @@ python scripts/train_model.py
 
 ```text
 ├── app/                  # UI Interfaces (Streamlit/Gradio)
+│   ├── simple/           # Gradio applicant-facing interface
+│   └── technical/        # Streamlit dashboard (credilens_dashboard.py)
 ├── config/               # YAML configurations for models & constraints
 ├── data/                 # Raw and processed datasets (Git-ignored)
-├── models/               # Saved model artifacts & preprocessors
-├── scripts/              # Training and utility scripts
+├── models/               # Saved XGBoost model artifacts & preprocessors
+├── scripts/              # Training, evaluation, and utility scripts
 ├── src/                  # Core Library Logic
-│   ├── analytics/        # Stress testing & Stability
-│   ├── counterfactuals/  # NSGA-II Generation
+│   ├── analytics/        # portfolio.py, stability.py, reporting.py
+│   ├── core/             # Base classes and shared utilities
+│   ├── counterfactuals/  # nsga2_problem.py (Optimization logic)
+│   ├── evaluation/       # Model evaluation metrics
 │   ├── explainability/   # SHAP/LIME wrappers
-│   ├── fairness/         # Bias detection
-│   └── recourse/         # Graph-based pathfinding
+│   ├── fairness/         # bias_detector.py, mitigation.py
+│   ├── interfaces/       # api_server.py (FastAPI implementation)
+│   ├── models/           # trainer.py, xgboost_model.py, optimizer.py
+│   └── recourse/         # graph_builder.py, action_space.py, path_finder.py
 └── tests/                # Unit & Integration tests
 ```
 
