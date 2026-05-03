@@ -10,6 +10,13 @@ CrediLens is a state-of-the-art credit risk platform that goes beyond simple "Ap
 
 ---
 
+## 🎯 Project Highlights
+*   **Developed** "CrediLens V4", an AI-driven Credit Risk Management platform utilizing XGBoost and Scikit-Learn to automate financial risk assessment workflows across **4 core pillars**: Explainability, Causal Recourse, Portfolio Stability, and Fairness.
+*   **Implemented** Explainable AI (XAI) and NSGA-II Multi-Objective Optimization to generate diverse, Pareto-optimal counterfactuals, while engineering **2** graph-based pathfinding algorithms (Dijkstra & Greedy Gradient) to provide actionable recourse paths for rejected applicants.
+*   **Designed** a robust Python backend (FastAPI) and **2** simultaneous frontend UIs (Streamlit & Gradio) to serve predictive inferences, run stochastic stress tests, and automate bias detection across **2** key fairness metrics (Demographic Parity & Disparate Impact).
+
+---
+
 ## 🚀 Key Features
 
 ### 1. **Explainable AI (XAI) & Counterfactuals**
